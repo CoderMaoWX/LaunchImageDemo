@@ -109,7 +109,7 @@
     NSError *readError = nil;
     NSArray *imageFiles = [fileManager contentsOfDirectoryAtPath:unzipPath error:&readError];
     if (readError) return;
-    NSString *targetName = @"user_bg";//chat_bg_default
+    NSString *targetName = @"chat_bg_default";//user_bg
     // 遍历该目录下截图文件
     for (NSString *fileName in imageFiles) {
         
