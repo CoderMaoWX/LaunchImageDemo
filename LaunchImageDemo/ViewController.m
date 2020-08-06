@@ -11,8 +11,8 @@
 #import "SSZipArchive.h"
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UISwitch   *downloadSwitch;
-@property (weak, nonatomic) IBOutlet UILabel    *tipLabel;
+@property (weak, nonatomic) IBOutlet UISwitch    *downloadSwitch;
+@property (weak, nonatomic) IBOutlet UILabel     *tipLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @end
 
@@ -21,6 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.imageView.image = [self fetchLaunchImage];
 }
 
 - (IBAction)downloadSwitch:(UISwitch *)sender {
@@ -35,25 +36,24 @@
     }
 }
 
-/// 下载例子
+/// 动态下载例子
 - (void)downloadZipData:(NSString *)downloadURL {
     NSLog(@"下载URL: %@", downloadURL);
     GFZNetworkRequest *api = [[GFZNetworkRequest alloc] init];
     api.requestType = GFZNetworkRequestTypeGET;
     api.loadingSuperView = self.view;
-    
-    //图片例子
-//    api.responseSerializer = [AFImageResponseSerializer serializer];
-//    api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2022/a.jpg";
-        
-    //ZIP例子:
-    api.responseSerializer = [AFHTTPResponseSerializer serializer];
-    api.requestUrl = downloadURL;
     api.downloadProgressBlock = ^(NSProgress *progress) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.tipLabel.text = [NSString stringWithFormat:@"下载文件进度:= %.2f", 1.0 * progress.completedUnitCount / progress.totalUnitCount];
         });
     };
+    //图片例子
+    //api.responseSerializer = [AFImageResponseSerializer serializer];
+    //api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2022/a.jpg";
+        
+    //ZIP例子:
+    api.responseSerializer = [AFHTTPResponseSerializer serializer];
+    api.requestUrl = downloadURL;
 
     [api startRequestWithBlock:^(GFZResponseModel *responseModel) {
         self.downloadSwitch.enabled = YES;
@@ -80,8 +80,10 @@
 }
 
 - (void)configDownloadImage:(NSString *)downloadURL zipData:(NSData *)zipData {
+    //警告:由于iOS项目程序无法在Mac上创建文件夹,测试时一定要手动在桌面上新建一个DownSkinImage目录
+    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage";
+    
     NSString *zipName = [downloadURL lastPathComponent];
-    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage";//custom directory
     NSString *desktopPath = [NSString stringWithFormat:@"%@/%@", downloadDirectory, zipName];
     NSString *unzipPath = [NSString stringWithFormat:@"%@/%@", downloadDirectory, [zipName componentsSeparatedByString:@"."].firstObject];
     
@@ -131,12 +133,12 @@
     }
 }
 
-/** 修复一个奇葩的bug: (方法2)
+/** 动态更换App的启动图 (闪屏图:LaunchScreenImage)
  *  重现场景: 偶现的发现在修改完storyboard中的启动图logo后, 可能会在不同机型上出现启动图logo黑屏的问题,
  *  解决办法: 找到沙盒目录中存在的启动图截屏文件目录位置, 自己绘制想要显示的启动图后替换原有的文件
  *  备注: 经过测试, 在不同系统版本的沙盒中, 启动图文件的目录位置不同,由于目前考虑到ZF在老版本系统上没有出现过黑屏logo问题, 暂时老系统版本不做处理
- *  iOS13以下系统启动图截屏文件保存目录: ~/Library/Caches/Snapshots/com.zaful.Zaful/xxxx@2x.ktx
- *  iOS13及以上系统启动图截屏文件保存目录: ~/Library/SplashBoard/Snapshots/com.zaful.Zaful - {DEFAULT GROUP}/xxxx@3x.ktx
+ *  iOS13以下系统启动图截屏文件保存目录: ~/Library/Caches/Snapshots/com.xxx.xxx/xxxx@2x.ktx
+ *  iOS13及以上系统启动图截屏文件保存目录: ~/Library/SplashBoard/Snapshots/com.xxx.xxx - {DEFAULT GROUP}/xxxx@3x.ktx
  *  替换后的变化: 原图大小约8K左右, 替换后大小约28K左右
  */
 BOOL replaceCacheLibraryLaunchImage (UIImage *newImage) {
@@ -177,8 +179,8 @@ BOOL replaceCacheLibraryLaunchImage (UIImage *newImage) {
             CGRect screenBounds     = [UIScreen mainScreen].bounds;
             CGFloat oldImageWidth   = screenBounds.size.width * scale;
             CGFloat oldImageHeight  = screenBounds.size.height * scale;
-//            CGFloat newImageWidth   = newImage.size.width * scale;
-//            CGFloat newImageHeight  = newImage.size.height * scale;
+            //CGFloat newImageWidth   = newImage.size.width * scale;
+            //CGFloat newImageHeight  = newImage.size.height * scale;
 
             // 设置图片尺寸为旧图尺寸
             CGRect rect = CGRectMake(0, 0, oldImageWidth, oldImageHeight);
@@ -209,4 +211,44 @@ BOOL replaceCacheLibraryLaunchImage (UIImage *newImage) {
     }
     return YES;
 }
+
+/**
+ * 获取沙盒的启动图
+ * iOS13以下系统启动图截屏文件保存目录: ~/Library/Caches/Snapshots/com.xxx.xxx/xxxx@2x.ktx
+ * iOS13及以上系统启动图截屏文件保存目录: ~/Library/SplashBoard/Snapshots/com.xxx.xxx - {DEFAULT GROUP}/xxxx@3x.ktx
+ * */
+- (UIImage *)fetchLaunchImage {
+    NSString *bundleID = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleIdentifier"];
+    NSString *launchImagePath = @"Library/SplashBoard/Snapshots";
+    NSString *shotsDirName = nil;
+    
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] <= 13.0) {
+        launchImagePath = @"Library/Caches/Snapshots";
+    } else {
+        shotsDirName = [bundleID stringByAppendingString:@" - {DEFAULT GROUP}"];
+    }
+    
+    NSString *shotsPath = [NSHomeDirectory() stringByAppendingPathComponent:launchImagePath];
+    if (shotsDirName) {
+        shotsPath = [shotsPath stringByAppendingPathComponent:shotsDirName];
+    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return nil;
+
+    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:shotsPath error:nil];
+    for (NSString *fileName in files) {
+        if ([fileName hasSuffix:@".ktx"]) {
+            NSString *replacePath = [shotsPath stringByAppendingPathComponent:fileName];
+            NSError *error = nil;
+            NSData *data = [NSData dataWithContentsOfFile:replacePath options:NSDataReadingMappedIfSafe error:&error];
+            if (!error && [data length]) {
+                UIImage *launchImage = [UIImage imageWithData:data];
+                if ([launchImage isKindOfClass:[UIImage class]]) return launchImage;
+            }
+            break;
+        }
+    }
+    return nil;
+}
+
+
 @end

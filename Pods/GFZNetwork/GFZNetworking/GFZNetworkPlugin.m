@@ -200,7 +200,14 @@ NSString *const KGFZNetworkBatchRequestDeallocDesc  = @"GFZNetworkBatchRequest d
     CGFloat statusBarAndNavBarHeight = STATUSHEIGHT+44;
     CGFloat offsetHeight = statusBarAndNavBarHeight/2;
     
-    UIWindow *window = [UIApplication sharedApplication].delegate.window;
+    UIWindow *window = nil;
+    id<UIApplicationDelegate> delegate = [UIApplication sharedApplication].delegate;
+    if ([delegate respondsToSelector:@selector(window)]) {
+        window = delegate.window;
+    } else {
+        window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        [window makeKeyAndVisible];
+    }
     CGFloat windowHeight = window.bounds.size.height;
     
     if ([loadingSuperView isEqual:window]) {
