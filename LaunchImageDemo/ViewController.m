@@ -82,8 +82,9 @@
 }
 
 - (void)configDownloadImage:(NSString *)downloadURL zipData:(NSData *)zipData {
-    //警告:由于iOS项目程序无法在Mac上创建文件夹,测试时一定要手动在桌面上新建一个DownSkinImage目录
-    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage";
+    NSString *userDocument = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *downloadDirectory = [userDocument stringByAppendingPathComponent:@"DownSkinImage"];
+    //downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage";//测试目录
     
     NSString *zipName = [downloadURL lastPathComponent];
     NSString *desktopPath = [NSString stringWithFormat:@"%@/%@", downloadDirectory, zipName];
@@ -91,7 +92,7 @@
     
     NSFileManager *fileManager  = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:downloadDirectory]) {
-        [fileManager createFileAtPath:downloadDirectory contents:nil attributes:nil];
+        [fileManager createDirectoryAtPath:downloadDirectory withIntermediateDirectories:YES attributes:nil error:nil];
     }
     BOOL writed = [zipData writeToFile:desktopPath atomically:YES];
     if (!writed) return;
@@ -108,7 +109,7 @@
     NSError *readError = nil;
     NSArray *imageFiles = [fileManager contentsOfDirectoryAtPath:unzipPath error:&readError];
     if (readError) return;
-    NSString *targetName = @"chat_bg_default";
+    NSString *targetName = @"user_bg";//chat_bg_default
     // 遍历该目录下截图文件
     for (NSString *fileName in imageFiles) {
         
