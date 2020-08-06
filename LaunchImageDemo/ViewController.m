@@ -7,9 +7,13 @@
 //
 
 #import "ViewController.h"
+#import "GFZNetwork.h"
+#import "SSZipArchive.h"
 
 @interface ViewController ()
-
+@property (nonatomic, assign) BOOL downloading;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @end
 
 @implementation ViewController
@@ -19,5 +23,185 @@
     // Do any additional setup after loading the view.
 }
 
+- (IBAction)downloadSwitch:(UISwitch *)sender {
+    if (self.downloading) return;
+    NSString *urlPath = [[NSBundle mainBundle] pathForResource:@"skinZipURL" ofType:@"txt"];
+    NSString *urlString = [[NSString alloc] initWithContentsOfFile:urlPath encoding:NSUTF8StringEncoding error:nil];
+    
+    NSArray *urlArray = [urlString componentsSeparatedByString:@",\n"];
+    NSInteger downloadIndex = (arc4random() % urlArray.count);
+    if (urlArray.count > downloadIndex) {
+        self.downloading = YES;
+        [self downloadZipData:urlArray[downloadIndex]];
+    }
+}
 
+/// 下载例子
+- (void)downloadZipData:(NSString *)downloadURL {
+    NSLog(@"下载URL: %@", downloadURL);
+    
+    GFZNetworkRequest *api = [[GFZNetworkRequest alloc] init];
+    api.requestType = GFZNetworkRequestTypeGET;
+    api.loadingSuperView = self.view;
+    
+    //图片例子
+//    api.responseSerializer = [AFImageResponseSerializer serializer];
+//    api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2022/a.jpg";
+        
+    //ZIP例子:
+    api.responseSerializer = [AFHTTPResponseSerializer serializer];
+    api.requestUrl = downloadURL;
+//    api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2018/2018_i_6_0_i_2.zip";
+    
+    api.downloadProgressBlock = ^(NSProgress *progress) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.tipLabel.text = [NSString stringWithFormat:@"下载文件进度:= %f", 1.0 * progress.completedUnitCount / progress.totalUnitCount];
+        });
+    };
+
+    [api startRequestWithBlock:^(GFZResponseModel *responseModel) {
+        
+        self.downloading = NO;
+        if (responseModel.isSuccess) {
+            NSLog(@"下载文件成功: %@", responseModel.description);
+            
+            if ([responseModel.responseObject isKindOfClass:[UIImage class]]) {
+                UIImage *newImage = (UIImage *)responseModel.responseObject;
+                replaceCacheLibraryLaunchImage(newImage);
+                
+            } else if([responseModel.responseObject isKindOfClass:[NSData class]]) {
+                NSData *zipData = responseModel.responseObject;
+                [self configDownloadImage:downloadURL zipData:zipData];
+            }
+        } else {
+            NSLog(@"下载文件失败: %@", responseModel.error);
+        }
+    }];
+}
+
+- (void)configDownloadImage:(NSString *)downloadURL zipData:(NSData *)zipData {
+    NSString *zipName = [downloadURL lastPathComponent];
+    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage/";
+    NSString *desktopPath = [NSString stringWithFormat:@"%@%@", downloadDirectory, zipName];
+    NSString *unzipPath = [NSString stringWithFormat:@"%@%@", downloadDirectory, [zipName componentsSeparatedByString:@"."].firstObject];
+    
+    NSFileManager *fileManager  = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:downloadDirectory]) {
+        [fileManager createFileAtPath:downloadDirectory contents:nil attributes:nil];
+    }
+    BOOL writed = [zipData writeToFile:desktopPath atomically:YES];
+    if (!writed) return;
+    
+    if ([fileManager fileExistsAtPath:unzipPath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:unzipPath error:nil];
+    }
+    BOOL unzip = [SSZipArchive unzipFileAtPath:desktopPath toDestination:unzipPath];
+    NSLog(@"下载文件路径:%d, %d, %@", writed, unzip, unzipPath);
+    
+    if (!unzip) return;
+    [fileManager removeItemAtPath:desktopPath error:nil];
+    
+    NSError *readError = nil;
+    NSArray *imageFiles = [fileManager contentsOfDirectoryAtPath:unzipPath error:&readError];
+    if (readError) return;
+    NSString *targetName = @"chat_bg_default";
+    // 遍历该目录下截图文件
+    for (NSString *fileName in imageFiles) {
+        
+        if ([fileName containsString:targetName]) {
+            NSString *replacePath = [unzipPath stringByAppendingPathComponent:fileName];
+            NSError *error = nil;
+            NSData *data = [NSData dataWithContentsOfFile:replacePath options:NSDataReadingMappedIfSafe error:&error];
+            if (!error && [data length]) {
+                UIImage *newImage = [UIImage imageWithData:data];
+                if ([newImage isKindOfClass:[UIImage class]]) {
+                    self.imageView.image = newImage;
+                    replaceCacheLibraryLaunchImage(newImage);
+                    NSLog(@"启动图截屏文件替换: %@", replacePath);
+                }
+            }
+            break;
+        }
+    }
+}
+
+/** 修复一个奇葩的bug: (方法2)
+ *  重现场景: 偶现的发现在修改完storyboard中的启动图logo后, 可能会在不同机型上出现启动图logo黑屏的问题,
+ *  解决办法: 找到沙盒目录中存在的启动图截屏文件目录位置, 自己绘制想要显示的启动图后替换原有的文件
+ *  备注: 经过测试, 在不同系统版本的沙盒中, 启动图文件的目录位置不同,由于目前考虑到ZF在老版本系统上没有出现过黑屏logo问题, 暂时老系统版本不做处理
+ *  iOS13以下系统启动图截屏文件保存目录: ~/Library/Caches/Snapshots/com.zaful.Zaful/xxxx@2x.ktx
+ *  iOS13及以上系统启动图截屏文件保存目录: ~/Library/SplashBoard/Snapshots/com.zaful.Zaful - {DEFAULT GROUP}/xxxx@3x.ktx
+ *  替换后的变化: 原图大小约8K左右, 替换后大小约28K左右
+ */
+void replaceCacheLibraryLaunchImage (UIImage *newImage) {
+    if (![newImage isKindOfClass:[UIImage class]]) return;
+    
+    NSString *Library = @"Library";
+    NSString *SplashBoard = @"SplashBoard";
+    NSString *Snapshots = @"Snapshots";//防止在App审核时会机器扫描到截屏目录被拒审, 因此目录临时拼接
+    NSString *imagePath = [NSString stringWithFormat:@"%@/%@/%@", Library, SplashBoard, Snapshots];
+    NSString *shotsPath = [NSHomeDirectory() stringByAppendingPathComponent:imagePath];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return;
+    
+    NSString *bundleID = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleIdentifier"];
+    NSString *shotsDirName = [bundleID stringByAppendingString:@" - {DEFAULT GROUP}"];
+    shotsPath = [shotsPath stringByAppendingPathComponent:shotsDirName];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return;
+    
+    NSError *readError = nil;
+    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:shotsPath error:&readError];
+    if (readError) return;
+    
+    // 遍历该目录下截图文件
+    for (NSString *fileName in files) {
+        NSString *replacePath = [shotsPath stringByAppendingPathComponent:fileName];
+        NSError *error = nil;
+        NSData *data = [NSData dataWithContentsOfFile:replacePath options:NSDataReadingMappedIfSafe error:&error];
+        if (!error && [data length]) {
+            
+            UIImage *oldImage = [UIImage imageWithData:data];
+            if (![oldImage isKindOfClass:[UIImage class]]) return;
+            
+            if (![newImage isKindOfClass:[UIImage class]])  {
+                newImage = [UIImage imageNamed:@"launch_image"];//sex_swimwear
+            }
+            if (![newImage isKindOfClass:[UIImage class]]) return;
+            
+            CGFloat scale           = [UIScreen mainScreen].scale;
+            CGRect screenBounds     = [UIScreen mainScreen].bounds;
+            CGFloat oldImageWidth   = screenBounds.size.width * scale;
+            CGFloat oldImageHeight  = screenBounds.size.height * scale;
+            CGFloat newImageWidth   = newImage.size.width * scale;
+            CGFloat newImageHeight  = newImage.size.height * scale;
+
+            // 设置图片尺寸为旧图尺寸
+            CGRect rect = CGRectMake(0, 0, oldImageWidth, oldImageHeight);
+            CGFloat x = (rect.size.width -  newImageWidth) /2;
+            CGFloat y = (rect.size.height - newImageHeight ) /2 * 0.8;
+            UIGraphicsBeginImageContextWithOptions(CGSizeMake(rect.size.width, rect.size.height), NO, 1);
+            CGContextRef context = UIGraphicsGetCurrentContext();
+            CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+            CGContextFillRect(context, rect);
+//            [newImage drawInRect:CGRectMake(x, y, newImageWidth, newImageHeight)];
+            [newImage drawAtPoint:CGPointZero];
+            UIImage *replaceImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            NSLog(@"设置图片尺寸为旧图尺寸: %@, %@, %@", oldImage, replaceImage, fileName);
+            
+            // 写入目录，替换旧图
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                NSData *launchData = UIImageJPEGRepresentation(replaceImage, 0.0);
+                if ([[NSFileManager defaultManager] fileExistsAtPath:replacePath]) {
+                    
+                    NSError *deleteErrors;
+                    BOOL deleteSuccess = [[NSFileManager defaultManager] removeItemAtPath:replacePath error:&deleteErrors];
+                    if (deleteSuccess || !deleteErrors) {
+                        BOOL success = [launchData writeToFile:replacePath atomically:YES];
+                        NSLog(@"沙盒目录启动图截屏文件状态:%d, %@", success, replacePath);
+                    }
+                }
+            });
+        }
+    }
+}
 @end

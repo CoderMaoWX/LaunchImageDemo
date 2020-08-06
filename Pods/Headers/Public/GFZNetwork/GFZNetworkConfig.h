@@ -1,0 +1,1 @@
+../../../GFZNetwork/GFZNetworking/GFZNetworkConfig.h
