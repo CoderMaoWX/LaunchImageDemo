@@ -11,8 +11,8 @@
 #import "SSZipArchive.h"
 
 @interface ViewController ()
-@property (nonatomic, assign) BOOL downloading;
-@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UISwitch   *downloadSwitch;
+@property (weak, nonatomic) IBOutlet UILabel    *tipLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @end
 
@@ -24,14 +24,13 @@
 }
 
 - (IBAction)downloadSwitch:(UISwitch *)sender {
-    if (self.downloading) return;
     NSString *urlPath = [[NSBundle mainBundle] pathForResource:@"skinZipURL" ofType:@"txt"];
     NSString *urlString = [[NSString alloc] initWithContentsOfFile:urlPath encoding:NSUTF8StringEncoding error:nil];
     
     NSArray *urlArray = [urlString componentsSeparatedByString:@",\n"];
     NSInteger downloadIndex = (arc4random() % urlArray.count);
     if (urlArray.count > downloadIndex) {
-        self.downloading = YES;
+        self.downloadSwitch.enabled = NO;
         [self downloadZipData:urlArray[downloadIndex]];
     }
 }
@@ -39,7 +38,6 @@
 /// 下载例子
 - (void)downloadZipData:(NSString *)downloadURL {
     NSLog(@"下载URL: %@", downloadURL);
-    
     GFZNetworkRequest *api = [[GFZNetworkRequest alloc] init];
     api.requestType = GFZNetworkRequestTypeGET;
     api.loadingSuperView = self.view;
@@ -51,27 +49,29 @@
     //ZIP例子:
     api.responseSerializer = [AFHTTPResponseSerializer serializer];
     api.requestUrl = downloadURL;
-//    api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2018/2018_i_6_0_i_2.zip";
-    
     api.downloadProgressBlock = ^(NSProgress *progress) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.tipLabel.text = [NSString stringWithFormat:@"下载文件进度:= %f", 1.0 * progress.completedUnitCount / progress.totalUnitCount];
+            self.tipLabel.text = [NSString stringWithFormat:@"下载文件进度:= %.2f", 1.0 * progress.completedUnitCount / progress.totalUnitCount];
         });
     };
 
     [api startRequestWithBlock:^(GFZResponseModel *responseModel) {
-        
-        self.downloading = NO;
+        self.downloadSwitch.enabled = YES;
         if (responseModel.isSuccess) {
-            NSLog(@"下载文件成功: %@", responseModel.description);
+            NSLog(@"下载文件成功: %@", [responseModel.responseObject description]);
             
             if ([responseModel.responseObject isKindOfClass:[UIImage class]]) {
                 UIImage *newImage = (UIImage *)responseModel.responseObject;
-                replaceCacheLibraryLaunchImage(newImage);
-                
+                BOOL success = replaceCacheLibraryLaunchImage(newImage);
+                if (success) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.tipLabel.text = @"动态更换成功,重新启动生效";
+                    });
+                }
             } else if([responseModel.responseObject isKindOfClass:[NSData class]]) {
                 NSData *zipData = responseModel.responseObject;
                 [self configDownloadImage:downloadURL zipData:zipData];
+                self.downloadSwitch.on = NO;
             }
         } else {
             NSLog(@"下载文件失败: %@", responseModel.error);
@@ -81,9 +81,9 @@
 
 - (void)configDownloadImage:(NSString *)downloadURL zipData:(NSData *)zipData {
     NSString *zipName = [downloadURL lastPathComponent];
-    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage/";
-    NSString *desktopPath = [NSString stringWithFormat:@"%@%@", downloadDirectory, zipName];
-    NSString *unzipPath = [NSString stringWithFormat:@"%@%@", downloadDirectory, [zipName componentsSeparatedByString:@"."].firstObject];
+    NSString *downloadDirectory = @"/Users/xin610582/Desktop/DownSkinImage";//custom directory
+    NSString *desktopPath = [NSString stringWithFormat:@"%@/%@", downloadDirectory, zipName];
+    NSString *unzipPath = [NSString stringWithFormat:@"%@/%@", downloadDirectory, [zipName componentsSeparatedByString:@"."].firstObject];
     
     NSFileManager *fileManager  = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:downloadDirectory]) {
@@ -115,9 +115,15 @@
             if (!error && [data length]) {
                 UIImage *newImage = [UIImage imageWithData:data];
                 if ([newImage isKindOfClass:[UIImage class]]) {
-                    self.imageView.image = newImage;
-                    replaceCacheLibraryLaunchImage(newImage);
                     NSLog(@"启动图截屏文件替换: %@", replacePath);
+                    
+                    self.imageView.image = newImage;
+                    BOOL success = replaceCacheLibraryLaunchImage(newImage);
+                    if (success) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            self.tipLabel.text = @"动态更换成功,重新启动生效";
+                        });
+                    }
                 }
             }
             break;
@@ -133,24 +139,24 @@
  *  iOS13及以上系统启动图截屏文件保存目录: ~/Library/SplashBoard/Snapshots/com.zaful.Zaful - {DEFAULT GROUP}/xxxx@3x.ktx
  *  替换后的变化: 原图大小约8K左右, 替换后大小约28K左右
  */
-void replaceCacheLibraryLaunchImage (UIImage *newImage) {
-    if (![newImage isKindOfClass:[UIImage class]]) return;
+BOOL replaceCacheLibraryLaunchImage (UIImage *newImage) {
+    if (![newImage isKindOfClass:[UIImage class]]) return NO;
     
     NSString *Library = @"Library";
     NSString *SplashBoard = @"SplashBoard";
     NSString *Snapshots = @"Snapshots";//防止在App审核时会机器扫描到截屏目录被拒审, 因此目录临时拼接
     NSString *imagePath = [NSString stringWithFormat:@"%@/%@/%@", Library, SplashBoard, Snapshots];
     NSString *shotsPath = [NSHomeDirectory() stringByAppendingPathComponent:imagePath];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return NO;
     
     NSString *bundleID = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleIdentifier"];
     NSString *shotsDirName = [bundleID stringByAppendingString:@" - {DEFAULT GROUP}"];
     shotsPath = [shotsPath stringByAppendingPathComponent:shotsDirName];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:shotsPath]) return NO;
     
     NSError *readError = nil;
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:shotsPath error:&readError];
-    if (readError) return;
+    if (readError) return NO;
     
     // 遍历该目录下截图文件
     for (NSString *fileName in files) {
@@ -160,32 +166,30 @@ void replaceCacheLibraryLaunchImage (UIImage *newImage) {
         if (!error && [data length]) {
             
             UIImage *oldImage = [UIImage imageWithData:data];
-            if (![oldImage isKindOfClass:[UIImage class]]) return;
+            if (![oldImage isKindOfClass:[UIImage class]]) return NO;
             
             if (![newImage isKindOfClass:[UIImage class]])  {
                 newImage = [UIImage imageNamed:@"launch_image"];//sex_swimwear
             }
-            if (![newImage isKindOfClass:[UIImage class]]) return;
+            if (![newImage isKindOfClass:[UIImage class]]) return NO;
             
             CGFloat scale           = [UIScreen mainScreen].scale;
             CGRect screenBounds     = [UIScreen mainScreen].bounds;
             CGFloat oldImageWidth   = screenBounds.size.width * scale;
             CGFloat oldImageHeight  = screenBounds.size.height * scale;
-            CGFloat newImageWidth   = newImage.size.width * scale;
-            CGFloat newImageHeight  = newImage.size.height * scale;
+//            CGFloat newImageWidth   = newImage.size.width * scale;
+//            CGFloat newImageHeight  = newImage.size.height * scale;
 
             // 设置图片尺寸为旧图尺寸
             CGRect rect = CGRectMake(0, 0, oldImageWidth, oldImageHeight);
-            CGFloat x = (rect.size.width -  newImageWidth) /2;
-            CGFloat y = (rect.size.height - newImageHeight ) /2 * 0.8;
             UIGraphicsBeginImageContextWithOptions(CGSizeMake(rect.size.width, rect.size.height), NO, 1);
             CGContextRef context = UIGraphicsGetCurrentContext();
             CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
             CGContextFillRect(context, rect);
-//            [newImage drawInRect:CGRectMake(x, y, newImageWidth, newImageHeight)];
-            [newImage drawAtPoint:CGPointZero];
+            [newImage drawInRect:rect];//全屏绘制
             UIImage *replaceImage = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
+            
             NSLog(@"设置图片尺寸为旧图尺寸: %@, %@, %@", oldImage, replaceImage, fileName);
             
             // 写入目录，替换旧图
@@ -203,5 +207,6 @@ void replaceCacheLibraryLaunchImage (UIImage *newImage) {
             });
         }
     }
+    return YES;
 }
 @end

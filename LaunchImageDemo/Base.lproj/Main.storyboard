@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--LaunchImageDemo-->
+        <!--动态下载更换启动图-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
@@ -16,39 +16,40 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LaunchImageDemo" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ktX-NJ-yUn">
-                                <rect key="frame" x="132.5" y="437.5" width="149" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="点击开关下载" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ktX-NJ-yUn">
+                                <rect key="frame" x="155" y="319" width="104" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="KDY-fa-LKr">
-                                <rect key="frame" x="184" y="337" width="51" height="31"/>
+                                <rect key="frame" x="184" y="238" width="51" height="31"/>
                                 <connections>
                                     <action selector="downloadSwitch:" destination="BYZ-38-t0r" eventType="valueChanged" id="9EQ-Jl-YSQ"/>
                                 </connections>
                             </switch>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launch_image" translatesAutoresizingMaskIntoConstraints="NO" id="v5s-mk-XZi">
-                                <rect key="frame" x="127" y="536" width="160" height="200"/>
+                                <rect key="frame" x="117" y="417.5" width="180" height="300"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="XlP-Fn-IdS"/>
-                                    <constraint firstAttribute="width" constant="160" id="xZP-R1-BCJ"/>
+                                    <constraint firstAttribute="height" constant="300" id="XlP-Fn-IdS"/>
+                                    <constraint firstAttribute="width" constant="180" id="xZP-R1-BCJ"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="KDY-fa-LKr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="249" id="9a8-s4-bpJ"/>
+                            <constraint firstItem="KDY-fa-LKr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="150" id="9a8-s4-bpJ"/>
                             <constraint firstItem="KDY-fa-LKr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="184" id="9be-gH-8qK"/>
-                            <constraint firstItem="ktX-NJ-yUn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="FIA-t0-mfW"/>
+                            <constraint firstItem="ktX-NJ-yUn" firstAttribute="top" secondItem="KDY-fa-LKr" secondAttribute="bottom" constant="50" id="Gek-Ud-zP5"/>
                             <constraint firstItem="ktX-NJ-yUn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="VVe-B0-WAJ"/>
                             <constraint firstItem="v5s-mk-XZi" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="j6M-cd-xne"/>
                             <constraint firstItem="v5s-mk-XZi" firstAttribute="top" secondItem="ktX-NJ-yUn" secondAttribute="bottom" constant="77.5" id="y6V-L0-ovd"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" title="LaunchImageDemo" id="Aku-xS-4RN"/>
+                    <navigationItem key="navigationItem" title="动态下载更换启动图" id="Aku-xS-4RN"/>
                     <connections>
+                        <outlet property="downloadSwitch" destination="KDY-fa-LKr" id="ghX-XW-TSN"/>
                         <outlet property="imageView" destination="v5s-mk-XZi" id="t3N-Ue-C9d"/>
                         <outlet property="tipLabel" destination="ktX-NJ-yUn" id="hfi-ue-amv"/>
                     </connections>
