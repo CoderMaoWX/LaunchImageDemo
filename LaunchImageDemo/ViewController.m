@@ -24,7 +24,7 @@
     self.imageView.image = [self fetchLaunchImage];
 }
 
-- (IBAction)downloadSwitch:(UISwitch *)sender {
+- (IBAction)downloadAction:(UISwitch *)sender {
     NSString *urlPath = [[NSBundle mainBundle] pathForResource:@"skinZipURL" ofType:@"txt"];
     NSString *urlString = [[NSString alloc] initWithContentsOfFile:urlPath encoding:NSUTF8StringEncoding error:nil];
     
@@ -39,6 +39,8 @@
 /// 动态下载例子
 - (void)downloadZipData:(NSString *)downloadURL {
     NSLog(@"下载URL: %@", downloadURL);
+    [GFZNetworkConfig sharedInstance].showRequestLaoding = YES;
+    
     GFZNetworkRequest *api = [[GFZNetworkRequest alloc] init];
     api.requestType = GFZNetworkRequestTypeGET;
     api.loadingSuperView = self.view;
@@ -71,7 +73,7 @@
             } else if([responseModel.responseObject isKindOfClass:[NSData class]]) {
                 NSData *zipData = responseModel.responseObject;
                 [self configDownloadImage:downloadURL zipData:zipData];
-                self.downloadSwitch.on = NO;
+                [self.downloadSwitch setOn:NO animated:YES];
             }
         } else {
             NSLog(@"下载文件失败: %@", responseModel.error);
@@ -227,7 +229,6 @@ BOOL replaceCacheLibraryLaunchImage (UIImage *newImage) {
     } else {
         shotsDirName = [bundleID stringByAppendingString:@" - {DEFAULT GROUP}"];
     }
-    
     NSString *shotsPath = [NSHomeDirectory() stringByAppendingPathComponent:launchImagePath];
     if (shotsDirName) {
         shotsPath = [shotsPath stringByAppendingPathComponent:shotsDirName];
