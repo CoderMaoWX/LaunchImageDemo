@@ -41,8 +41,7 @@
                                 <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                 <state key="normal" title="KissMe"/>
                                 <connections>
-                                    <action selector="kissMeAction:" destination="Z6R-IR-g9x" eventType="touchUpInside" id="zhs-li-CWz"/>
-                                    <action selector="secondVCManagerAction:" destination="D3i-Ba-ur0" eventType="touchUpInside" id="wCY-3A-amV"/>
+                                    <action selector="KissMeAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PQA-78-PHx"/>
                                 </connections>
                             </button>
                         </subviews>

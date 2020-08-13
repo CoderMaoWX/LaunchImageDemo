@@ -7,13 +7,15 @@
 //
 
 #import "VCManager.h"
+#import <objc/runtime.h>
 
 @implementation VCManager
 
 
 - (IBAction)kissMeAction:(UIButton *)sender {
     NSLog(@"sender: %@", sender.currentTitle);
-    
+ 
+    [self testMethodAction];
 }
 
 

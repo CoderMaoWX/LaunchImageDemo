@@ -10,6 +10,7 @@
 #import "GFZNetwork.h"
 #import "SSZipArchive.h"
 #import "VCManager.h"
+#import "SecondVC.h"
 
 @interface ViewController ()
 @property (nonatomic, assign) BOOL showFlag;
@@ -25,6 +26,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.imageView.image = [self fetchLaunchImage];
+}
+
+- (IBAction)KissMeAction:(id)sender {
+    SecondVC *secondVC = [[SecondVC alloc] init];
+    [self.navigationController pushViewController:secondVC animated:YES];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
