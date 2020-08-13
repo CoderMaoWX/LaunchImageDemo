@@ -9,8 +9,11 @@
 #import "ViewController.h"
 #import "GFZNetwork.h"
 #import "SSZipArchive.h"
+#import "VCManager.h"
 
 @interface ViewController ()
+@property (nonatomic, assign) BOOL showFlag;
+@property (strong, nonatomic) IBOutlet VCManager *managerObject;
 @property (weak, nonatomic) IBOutlet UISwitch    *downloadSwitch;
 @property (weak, nonatomic) IBOutlet UILabel     *tipLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -24,7 +27,21 @@
     self.imageView.image = [self fetchLaunchImage];
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    NSLog(@"测试一下 expression LLDB调试命令");
+    // 修改变量的值: expression self.showFlag = YES
+    // 跳过1行执行代码的命令: thread jump --by 1
+    // expression unsafeBitCast(0x7fb46a4098e0).frame.origin.y = 400
+    if (self.showFlag) {
+        NSLog(@"是 showFlag: %d", self.showFlag);
+    } else {
+        NSLog(@"否 showFlag: %d", self.showFlag);
+    }
+}
+
 - (IBAction)downloadAction:(UISwitch *)sender {
+    NSLog(@"showFlag: %d", self.showFlag);
+    
     NSString *urlPath = [[NSBundle mainBundle] pathForResource:@"skinZipURL" ofType:@"txt"];
     NSString *urlString = [[NSString alloc] initWithContentsOfFile:urlPath encoding:NSUTF8StringEncoding error:nil];
     
