@@ -7,10 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		586F718624E4D6BE00E949B2 /* SecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 586F718424E4D6BE00E949B2 /* SecondVC.m */; };
-		586F718724E4D6BE00E949B2 /* SecondVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 586F718524E4D6BE00E949B2 /* SecondVC.xib */; };
-		586F718A24E4D89A00E949B2 /* VCManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 586F718924E4D89A00E949B2 /* VCManager.m */; };
-		586F718D24E4D8AA00E949B2 /* SecondVCManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 586F718C24E4D8AA00E949B2 /* SecondVCManager.m */; };
+		586F719024E5319000E949B2 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 586F718F24E5319000E949B2 /* Person.m */; };
 		5895C09524DBE5E100EEC25C /* skinZipURL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5895C09424DBE5E100EEC25C /* skinZipURL.txt */; };
 		58BDD02224D3F4AF00AF1D1A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BDD02124D3F4AF00AF1D1A /* AppDelegate.m */; };
 		58BDD02524D3F4AF00AF1D1A /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BDD02424D3F4AF00AF1D1A /* SceneDelegate.m */; };
@@ -24,13 +21,8 @@
 
 /* Begin PBXFileReference section */
 		0160D1F5A3E0A06AD29559C1 /* libPods-LaunchImageDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LaunchImageDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		586F718324E4D6BE00E949B2 /* SecondVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecondVC.h; sourceTree = "<group>"; };
-		586F718424E4D6BE00E949B2 /* SecondVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SecondVC.m; sourceTree = "<group>"; };
-		586F718524E4D6BE00E949B2 /* SecondVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SecondVC.xib; sourceTree = "<group>"; };
-		586F718824E4D89A00E949B2 /* VCManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VCManager.h; sourceTree = "<group>"; };
-		586F718924E4D89A00E949B2 /* VCManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VCManager.m; sourceTree = "<group>"; };
-		586F718B24E4D8AA00E949B2 /* SecondVCManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecondVCManager.h; sourceTree = "<group>"; };
-		586F718C24E4D8AA00E949B2 /* SecondVCManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SecondVCManager.m; sourceTree = "<group>"; };
+		586F718E24E5319000E949B2 /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		586F718F24E5319000E949B2 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		5895C09424DBE5E100EEC25C /* skinZipURL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = skinZipURL.txt; sourceTree = "<group>"; };
 		58BDD01D24D3F4AE00AF1D1A /* LaunchImageDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaunchImageDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58BDD02024D3F4AE00AF1D1A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -87,18 +79,13 @@
 				58BDD02424D3F4AF00AF1D1A /* SceneDelegate.m */,
 				58BDD02624D3F4AF00AF1D1A /* ViewController.h */,
 				58BDD02724D3F4AF00AF1D1A /* ViewController.m */,
-				586F718824E4D89A00E949B2 /* VCManager.h */,
-				586F718924E4D89A00E949B2 /* VCManager.m */,
-				586F718324E4D6BE00E949B2 /* SecondVC.h */,
-				586F718424E4D6BE00E949B2 /* SecondVC.m */,
-				586F718524E4D6BE00E949B2 /* SecondVC.xib */,
-				586F718B24E4D8AA00E949B2 /* SecondVCManager.h */,
-				586F718C24E4D8AA00E949B2 /* SecondVCManager.m */,
 				58BDD02924D3F4AF00AF1D1A /* Main.storyboard */,
 				58BDD02C24D3F4B100AF1D1A /* Assets.xcassets */,
 				58BDD02E24D3F4B100AF1D1A /* LaunchScreen.storyboard */,
 				58BDD03124D3F4B100AF1D1A /* Info.plist */,
 				58BDD03224D3F4B100AF1D1A /* main.m */,
+				586F718E24E5319000E949B2 /* Person.h */,
+				586F718F24E5319000E949B2 /* Person.m */,
 				5895C09424DBE5E100EEC25C /* skinZipURL.txt */,
 			);
 			path = LaunchImageDemo;
@@ -179,7 +166,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				586F718724E4D6BE00E949B2 /* SecondVC.xib in Resources */,
 				58BDD03024D3F4B100AF1D1A /* LaunchScreen.storyboard in Resources */,
 				58BDD02D24D3F4B100AF1D1A /* Assets.xcassets in Resources */,
 				58BDD02B24D3F4AF00AF1D1A /* Main.storyboard in Resources */,
@@ -221,10 +207,8 @@
 			files = (
 				58BDD02824D3F4AF00AF1D1A /* ViewController.m in Sources */,
 				58BDD02224D3F4AF00AF1D1A /* AppDelegate.m in Sources */,
-				586F718A24E4D89A00E949B2 /* VCManager.m in Sources */,
-				586F718D24E4D8AA00E949B2 /* SecondVCManager.m in Sources */,
+				586F719024E5319000E949B2 /* Person.m in Sources */,
 				58BDD03324D3F4B100AF1D1A /* main.m in Sources */,
-				586F718624E4D6BE00E949B2 /* SecondVC.m in Sources */,
 				58BDD02524D3F4AF00AF1D1A /* SceneDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

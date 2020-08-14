@@ -1,5 +1,5 @@
 //
-//  SecondVCManager.h
+//  Person.h
 //  LaunchImageDemo
 //
 //  Created by 610582 on 2020/8/13.
@@ -7,11 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SecondVCManager : NSObject
+@interface Person : NSObject
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,assign) NSInteger  ages;
+-(instancetype)initWith:(NSString *)names withAge:(NSInteger)ages;
 
 @end
 

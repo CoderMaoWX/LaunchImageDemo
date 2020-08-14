@@ -23,7 +23,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="KDY-fa-LKr">
-                                <rect key="frame" x="184" y="238" width="50" height="31"/>
+                                <rect key="frame" x="184" y="238" width="51" height="31"/>
                                 <connections>
                                     <action selector="downloadAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="T3v-c1-n7P"/>
                                 </connections>
@@ -35,28 +35,14 @@
                                     <constraint firstAttribute="width" constant="180" id="xZP-R1-BCJ"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uay-Pr-eNb">
-                                <rect key="frame" x="177" y="144" width="62" height="30"/>
-                                <color key="backgroundColor" systemColor="opaqueSeparatorColor" red="0.77647058820000003" green="0.77647058820000003" blue="0.7843137255" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
-                                <state key="normal" title="KissMe"/>
-                                <connections>
-                                    <action selector="KissMeAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PQA-78-PHx"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="KDY-fa-LKr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="150" id="9a8-s4-bpJ"/>
                             <constraint firstItem="KDY-fa-LKr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="184" id="9be-gH-8qK"/>
-                            <constraint firstItem="uay-Pr-eNb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="177" id="9c7-CR-Wf6"/>
                             <constraint firstItem="ktX-NJ-yUn" firstAttribute="top" secondItem="KDY-fa-LKr" secondAttribute="bottom" constant="50" id="Gek-Ud-zP5"/>
-                            <constraint firstItem="uay-Pr-eNb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="56" id="NmA-VY-i1v"/>
                             <constraint firstItem="ktX-NJ-yUn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="VVe-B0-WAJ"/>
-                            <constraint firstItem="uay-Pr-eNb" firstAttribute="centerX" secondItem="KDY-fa-LKr" secondAttribute="centerX" id="dIz-rN-9xR"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uay-Pr-eNb" secondAttribute="trailing" constant="175" id="e8S-I6-kFU"/>
                             <constraint firstItem="v5s-mk-XZi" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="j6M-cd-xne"/>
-                            <constraint firstItem="KDY-fa-LKr" firstAttribute="top" secondItem="uay-Pr-eNb" secondAttribute="bottom" constant="64" id="rRt-D4-Nnh"/>
                             <constraint firstItem="v5s-mk-XZi" firstAttribute="top" secondItem="ktX-NJ-yUn" secondAttribute="bottom" constant="77.5" id="y6V-L0-ovd"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -65,13 +51,10 @@
                     <connections>
                         <outlet property="downloadSwitch" destination="KDY-fa-LKr" id="ghX-XW-TSN"/>
                         <outlet property="imageView" destination="v5s-mk-XZi" id="t3N-Ue-C9d"/>
-                        <outlet property="managerObject" destination="Z6R-IR-g9x" id="XEg-hK-Rxl"/>
                         <outlet property="tipLabel" destination="ktX-NJ-yUn" id="hfi-ue-amv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <customObject id="Z6R-IR-g9x" userLabel="VCManager" customClass="VCManager"/>
-                <customObject id="D3i-Ba-ur0" userLabel="SecondVCManager" customClass="SecondVCManager"/>
             </objects>
             <point key="canvasLocation" x="1084" y="126"/>
         </scene>
